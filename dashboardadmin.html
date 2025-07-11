@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HUY DEV TOOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6C63FF; /* Vibrant Violet */
+            --secondary-color: #50C878; /* Emerald Green */
+            --accent-color: #FFD700; /* Gold */
+            --danger-color: #FF6B6B; /* Red */
+            --success-color: #4CAF50; /* Green */
+            --warning-color: #FFC371; /* Orange */
+            --info-color: #2196F3; /* Blue */
+            --text-dark: #333;
+            --text-light: #ecf0f1;
+            --background-light: #f0f4f8; /* Light blue-grey */
+            --background-dark: #2c3e50; /* Dark blue-grey for sidebar */
+            --card-bg: #ffffff;
+            --border-light: #e0e0e0;
+            --shadow-soft: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-strong: rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        /* F12 Warning */
+        #devtools-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.98);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2em; /* Reduced font size */
+            text-align: center;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            animation: glitchEffect 0.8s infinite alternate;
+        }
+
+        #devtools-warning.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        @keyframes glitchEffect {
+            0% { text-shadow: 3px 3px #ff0000, -3px -3px #0000ff; transform: skew(0deg); }
+            25% { text-shadow: -3px -3px #ff0000, 3px 3px #0000ff; transform: skew(6deg); }
+            50% { text-shadow: 3px -3px #ff0000, -3px 3px #0000ff; transform: skew(-6deg); }
+            75% { text-shadow: -3px 3px #ff0000, 3px -3px #0000ff; transform: skew(0deg); }
+            100% { text-shadow: 3px 3px #ff0000, -3px -3px #0000ff; transform: skew(0deg); }
+        }
+
+        #devtools-warning h1 {
+            color: #ffeb3b;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+        #devtools-warning p {
+            margin: 20px;
+            color: #ffeb3b;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        #devtools-warning .countdown {
+            font-size: 0.8em;
+            color: #FFEB3B;
+            margin-top: 25px;
+            font-weight: bold;
+        }
+
+        /* Admin Login Overlay */
+        #admin-login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+        }
+
+        .admin-login-box, .admin-key-box {
+            background: var(--card-bg);
+            padding: 45px; /* Reduced padding */
+            border-radius: 20px; /* Slightly smaller radius */
+            box-shadow: 0 18px 45px var(--shadow-strong); /* Slightly less intense shadow */
+            text-align: center;
+            width: 90%;
+            max-width: 420px; /* Reduced max-width */
+            animation: fadeInScale 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+            transform: scale(0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes fadeInScale {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .admin-login-box h2, .admin-key-box h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px; /* Reduced margin */
+            font-size: 2.2em; /* Reduced font size */
+            font-weight: 800;
+            text-shadow: 2px 2px 5px var(--shadow-medium);
+        }
+
+        .admin-login-box input, .admin-key-box input {
+            width: calc(100% - 30px); /* Adjusted width */
+            padding: 16px 15px; /* Reduced padding */
+            margin-bottom: 20px; /* Reduced margin */
+            border: 1.5px solid var(--border-light); /* Thinner border */
+            border-radius: 12px; /* Slightly smaller radius */
+            font-size: 1em; /* Reduced font size */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: var(--input-bg);
+            box-shadow: inset 0 2px 4px var(--shadow-soft); /* Slightly less intense shadow */
+            color: var(--text-dark);
+        }
+
+        .admin-login-box input:focus, .admin-key-box input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(80, 200, 120, 0.2);
+            outline: none;
+            background: white;
+        }
+
+        .admin-login-box button, .admin-key-box button {
+            width: 100%;
+            padding: 18px; /* Reduced padding */
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 12px; /* Slightly smaller radius */
+            font-size: 1.2em; /* Reduced font size */
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 20px var(--shadow-medium); /* Slightly reduced shadow */
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .admin-login-box button::before, .admin-key-box button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.5s ease-out;
+            transform: skewX(-30deg);
+        }
+
+        .admin-login-box button:hover::before, .admin-key-box button:hover::before {
+            left: 150%;
+        }
+
+        .admin-login-box button:hover, .admin-key-box button:hover {
+            transform: translateY(-6px); /* Slightly less lift */
+            box-shadow: 0 12px 30px var(--shadow-strong); /* Slightly less intense shadow */
+        }
+
+        .message-box {
+            background-color: #f44336;
+            color: white;
+            padding: 16px; /* Reduced padding */
+            margin-bottom: 20px; /* Reduced margin */
+            border-radius: 10px; /* Slightly smaller radius */
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            box-shadow: 0 3px 10px var(--shadow-soft); /* Slightly less intense shadow */
+            font-weight: 600;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9em; /* Reduced font size */
+        }
+
+        .message-box.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message-box.success {
+            background-color: var(--success-color);
+        }
+        .message-box.warning {
+            background-color: var(--warning-color);
+            color: var(--text-dark);
+        }
+        .message-box.info {
+            background-color: var(--info-color);
+        }
+
+        .message-box .close-btn {
+            position: absolute;
+            top: 8px; /* Adjusted position */
+            right: 12px; /* Adjusted position */
+            color: white;
+            font-size: 1.1em; /* Reduced font size */
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .message-box.warning .close-btn {
+            color: var(--text-dark);
+        }
+        .message-box .close-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Main Dashboard Layout */
+        .sidebar {
+            width: 250px; /* Reduced sidebar width */
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            padding: 30px 0; /* Reduced padding */
+            box-shadow: 6px 0 20px var(--shadow-strong); /* Slightly less intense shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            transition: width 0.3s ease, transform 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        /* Hamburger menu for mobile */
+        .menu-toggle {
+            display: none;
+            position: absolute;
+            top: 15px; /* Adjusted position */
+            left: 15px; /* Adjusted position */
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px; /* Slightly smaller radius */
+            padding: 8px 12px; /* Reduced padding */
+            font-size: 1.1em; /* Reduced font size */
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3); /* Slightly less intense shadow */
+            transition: all 0.3s ease;
+        }
+        .menu-toggle:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+            transform: translateX(-100%);
+        }
+
+        .sidebar h1 {
+            font-size: 2em; /* Reduced font size */
+            margin-bottom: 40px; /* Reduced margin */
+            color: var(--accent-color);
+            text-align: center;
+            width: 100%;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.collapsed h1 {
+            opacity: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.collapsed ul {
+            opacity: 0;
+        }
+
+        .sidebar ul li {
+            width: 100%;
+            margin-bottom: 12px; /* Reduced margin */
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            padding: 18px 30px; /* Reduced padding */
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.05em; /* Reduced font size */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-left: 6px solid transparent; /* Thinner border */
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 15px; /* Reduced margin */
+            font-size: 1.2em; /* Reduced font size */
+            color: var(--secondary-color);
+            transition: color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: rgba(255, 255, 255, 0.15); /* Slightly less opaque */
+            border-left-color: var(--primary-color);
+            color: white;
+            transform: translateX(6px); /* Slightly less transform */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Slightly less intense shadow */
+        }
+        .sidebar ul li a:hover i, .sidebar ul li a.active i {
+            color: white;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px; /* Reduced padding */
+            overflow-y: auto;
+            height: 100vh;
+            background-color: var(--background-light);
+            transition: padding 0.3s ease;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px; /* Reduced margin */
+            padding-bottom: 20px; /* Reduced padding */
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .header h2 {
+            font-size: 2.5em; /* Reduced font size */
+            color: var(--primary-color);
+            font-weight: 800;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .header .user-info {
+            font-size: 1.1em; /* Reduced font size */
+            color: var(--text-dark);
+            font-weight: 700;
+            background: var(--card-bg);
+            padding: 10px 20px; /* Reduced padding */
+            border-radius: 12px; /* Slightly smaller radius */
+            box-shadow: 0 4px 12px var(--shadow-soft); /* Slightly less intense shadow */
+            transition: transform 0.3s ease;
+        }
+        .header .user-info:hover {
+            transform: translateY(-2px); /* Slightly less lift */
+            box-shadow: 0 6px 15px var(--shadow-medium); /* Slightly less intense shadow */
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Adjusted minmax for smaller cards */
+            gap: 25px; /* Reduced gap */
+            margin-bottom: 40px; /* Reduced margin */
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px; /* Slightly smaller radius */
+            box-shadow: 0 8px 25px var(--shadow-medium); /* Slightly less intense shadow */
+            padding: 30px; /* Reduced padding */
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 140px; /* Slightly reduced min-height */
+        }
+
+        .card:hover {
+            transform: translateY(-8px); /* Slightly less lift */
+            box-shadow: 0 12px 35px var(--shadow-strong); /* Slightly less intense shadow */
+        }
+
+        .card h3 {
+            font-size: 1.6em; /* Reduced font size */
+            color: var(--primary-color);
+            margin-bottom: 20px; /* Reduced margin */
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .card .value {
+            font-size: 3.5em; /* Reduced font size */
+            font-weight: 900;
+            color: var(--text-dark);
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-content {
+            display: none;
+            animation: slideInContent 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            height: calc(100vh - 180px); /* Adjusted height for scrollable sections */
+            overflow-y: auto;
+            padding-right: 15px; /* Reduced padding for scrollbar */
+        }
+        .section-content::-webkit-scrollbar {
+            width: 8px; /* Thinner scrollbar */
+            background: transparent;
+        }
+        .section-content::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.03); /* Lighter track */
+            border-radius: 8px;
+        }
+        .section-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 8px;
+            border: 2px solid var(--background-light);
+        }
+        .section-content::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        @keyframes slideInContent {
+            from { opacity: 0; transform: translateX(40px); } /* Slightly less transform */
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 25px; /* Reduced margin */
+            background: var(--card-bg);
+            border-radius: 18px; /* Slightly smaller radius */
+            overflow: hidden;
+            box-shadow: 0 6px 20px var(--shadow-soft); /* Slightly less intense shadow */
+            white-space: nowrap;
+        }
+
+        table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        table th, table td {
+            padding: 16px; /* Reduced padding */
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        table th {
+            font-weight: 600; /* Slightly lighter font weight */
+            text-transform: uppercase;
+            font-size: 0.95em; /* Reduced font size */
+            letter-spacing: 0.6px;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        table tbody tr:hover {
+            background-color: #eef2f5;
+            transform: scale(1.003); /* Slightly less scale */
+            box-shadow: 0 1px 8px rgba(0,0,0,0.05); /* Slightly less intense shadow */
+        }
+
+        .action-buttons button {
+            padding: 10px 16px; /* Reduced padding */
+            margin-right: 8px; /* Reduced margin */
+            border: none;
+            border-radius: 10px; /* Slightly smaller radius */
+            cursor: pointer;
+            font-weight: 600; /* Slightly lighter font weight */
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px var(--shadow-soft); /* Slightly less intense shadow */
+            font-size: 0.9em; /* Reduced font size */
+            white-space: nowrap;
+        }
+
+        .action-buttons .active-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .action-buttons .active-btn:hover {
+            background-color: #61b31d;
+            transform: translateY(-2px); /* Slightly less lift */
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2); /* Slightly less intense shadow */
+        }
+
+        .action-buttons .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .action-buttons .delete-btn:hover {
+            background-color: #b30016;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+        }
+
+        .action-buttons .lock-btn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        .action-buttons .lock-btn:hover {
+            background-color: #d88e1e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+        }
+        .action-buttons .unlock-btn {
+            background-color: var(--info-color);
+            color: white;
+        }
+        .action-buttons .unlock-btn:hover {
+            background-color: #3a7bd5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Status indicators in tables */
+        .status-badge {
+            padding: 7px 12px; /* Reduced padding */
+            border-radius: 8px; /* Slightly smaller radius */
+            font-weight: 600; /* Slightly lighter font weight */
+            font-size: 0.85em; /* Reduced font size */
+            display: inline-block;
+            text-transform: capitalize;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); /* Slightly less intense shadow */
+        }
+        .status-badge.pending { background-color: #FFEB3B; color: #333; }
+        .status-badge.active { background-color: var(--success-color); color: white; }
+        .status-badge.locked { background-color: var(--warning-color); color: white; }
+        .status-badge.expired { background-color: var(--danger-color); color: white; }
+        .status-badge.no_active { background-color: #9E9E9E; color: white; }
+
+        /* Form Styling (Create Key, Security) */
+        #create-key-form, #security-form {
+            background: var(--card-bg);
+            padding: 35px; /* Reduced padding */
+            border-radius: 20px; /* Slightly smaller radius */
+            box-shadow: 0 8px 25px var(--shadow-medium); /* Slightly less intense shadow */
+            max-width: 550px; /* Reduced max-width */
+            margin: 25px auto; /* Reduced margin */
+            border: 1px solid var(--border-light);
+        }
+        #create-key-form h3, #security-form h3, #security-form h4 {
+            color: var(--primary-color);
+            margin-bottom: 25px; /* Reduced margin */
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.8em; /* Reduced font size */
+        }
+        #security-form h4 {
+            font-size: 1.4em; /* Reduced font size */
+            margin-top: 30px; /* Reduced margin */
+            margin-bottom: 20px; /* Reduced margin */
+            color: var(--text-dark);
+        }
+        #create-key-form .input-group, #security-form .input-group {
+            margin-bottom: 20px; /* Reduced margin */
+        }
+        #create-key-form label, #security-form label {
+            display: block;
+            margin-bottom: 10px; /* Reduced margin */
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95em; /* Reduced font size */
+            display: flex;
+            align-items: center;
+        }
+        #create-key-form label i, #security-form label i {
+            margin-right: 8px; /* Reduced margin */
+            color: var(--primary-color);
+        }
+        #create-key-form input, #create-key-form select,
+        #security-form input {
+            width: calc(100% - 30px); /* Adjusted width */
+            padding: 14px 15px; /* Reduced padding */
+            border: 1.5px solid var(--border-light); /* Thinner border */
+            border-radius: 12px; /* Slightly smaller radius */
+            font-size: 1em; /* Reduced font size */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: var(--input-bg);
+            box-shadow: inset 0 2px 4px var(--shadow-soft); /* Slightly less intense shadow */
+            color: var(--text-dark);
+        }
+        #create-key-form input:focus, #create-key-form select:focus,
+        #security-form input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(80, 200, 120, 0.2);
+            outline: none;
+            background: white;
+        }
+        #create-key-form select {
+            width: auto;
+            margin-left: 12px; /* Reduced margin */
+            padding: 14px 12px; /* Reduced padding */
+        }
+        #create-key-form button, #security-form button {
+            width: 100%;
+            padding: 16px; /* Reduced padding */
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 12px; /* Slightly smaller radius */
+            font-size: 1.1em; /* Reduced font size */
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 6px 18px var(--shadow-medium); /* Slightly less intense shadow */
+            margin-top: 20px; /* Reduced margin */
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            outline: none;
+        }
+        #create-key-form button::before, #security-form button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.5s ease-out;
+            transform: skewX(-30deg);
+        }
+        #create-key-form button:hover::before, #security-form button:hover::before {
+            left: 150%;
+        }
+        #create-key-form button:hover, #security-form button:hover {
+            transform: translateY(-4px); /* Slightly less lift */
+            box-shadow: 0 10px 25px var(--shadow-strong); /* Slightly less intense shadow */
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px; /* Further reduced sidebar width */
+                padding: 25px 0;
+            }
+            .sidebar h1 {
+                font-size: 1.6em;
+                margin-bottom: 30px;
+            }
+            .sidebar ul li a {
+                padding: 16px 25px;
+                font-size: 1em;
+            }
+            .sidebar ul li a i {
+                margin-right: 12px;
+                font-size: 1.1em;
+            }
+            .main-content {
+                padding: 30px;
+            }
+            .header h2 {
+                font-size: 2em;
+            }
+            .dashboard-grid {
+                gap: 20px;
+            }
+            .card h3 {
+                font-size: 1.4em;
+            }
+            .card .value {
+                font-size: 3em;
+            }
+            table th, table td {
+                padding: 14px;
+                font-size: 0.85em;
+            }
+            .action-buttons button {
+                padding: 9px 14px;
+                font-size: 0.85em;
+            }
+            #create-key-form, #security-form {
+                padding: 30px;
+                border-radius: 18px;
+                max-width: 500px;
+            }
+            #create-key-form h3, #security-form h3, #security-form h4 {
+                font-size: 1.6em;
+            }
+            #security-form h4 {
+                font-size: 1.3em;
+            }
+            #create-key-form input, #create-key-form select,
+            #security-form input {
+                padding: 12px 14px;
+                font-size: 0.95em;
+            }
+            #create-key-form button, #security-form button {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+                box-shadow: 0 4px 12px var(--shadow-medium);
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .sidebar.active {
+                transform: translateX(0%);
+            }
+            .sidebar h1 {
+                margin-bottom: 15px;
+                font-size: 1.4em;
+            }
+            .sidebar ul {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+            .sidebar ul li {
+                width: auto;
+                margin: 0;
+            }
+            .sidebar ul li a {
+                padding: 10px 15px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                font-size: 0.9em;
+            }
+            .sidebar ul li a:hover, .sidebar ul li a.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary-color);
+                transform: translateY(-1px);
+            }
+            .sidebar ul li a i {
+                margin-right: 6px;
+                font-size: 1em;
+            }
+            .main-content {
+                padding: 15px;
+                height: 100vh;
+                width: 100%;
+                overflow-y: auto;
+                padding-top: 60px; /* Space for fixed menu toggle */
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 15px;
+            }
+            .header h2 {
+                margin-bottom: 8px;
+                font-size: 1.8em;
+            }
+            .header .user-info {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .section-content {
+                height: calc(100vh - 130px); /* Adjusted height for mobile header */
+            }
+            .admin-login-box, .admin-key-box {
+                padding: 30px;
+                border-radius: 15px;
+                max-width: 380px;
+            }
+            .admin-login-box h2, .admin-key-box h2 {
+                font-size: 2em;
+            }
+            .admin-login-box input, .admin-key-box input {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+            .admin-login-box button, .admin-key-box button {
+                padding: 14px;
+                font-size: 1em;
+            }
+            #devtools-warning {
+                font-size: 1.6em;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+        @media (max-width: 480px) {
+            .sidebar {
+                padding: 10px 0;
+            }
+            .sidebar h1 {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+            .sidebar ul li a {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+            .sidebar ul li a i {
+                margin-right: 4px;
+                font-size: 0.9em;
+            }
+            .main-content {
+                padding: 10px;
+                padding-top: 50px; /* Adjust for smaller toggle */
+            }
+            .header h2 {
+                font-size: 1.5em;
+            }
+            .header .user-info {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+            .card h3 {
+                font-size: 1.2em;
+            }
+            .card .value {
+                font-size: 2.5em;
+            }
+            table th, table td {
+                padding: 10px;
+                font-size: 0.75em;
+            }
+            .action-buttons button {
+                padding: 6px 8px;
+                font-size: 0.75em;
+                margin-right: 4px;
+            }
+            #create-key-form, #security-form {
+                padding: 20px;
+                border-radius: 15px;
+                max-width: 320px;
+            }
+            #create-key-form h3, #security-form h3, #security-form h4 {
+                font-size: 1.4em;
+            }
+            #security-form h4 {
+                font-size: 1.1em;
+            }
+            #create-key-form input, #create-key-form select,
+            #security-form input {
+                padding: 10px 8px;
+                font-size: 0.85em;
+            }
+            #create-key-form button, #security-form button {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+            #devtools-warning {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="devtools-warning">
+        <h1>Cảnh báo! Truy cập trái phép bị cấm!</h1>
+        <p>Bạn không được phép mở Công cụ Phát triển (DevTools) trên trang này.</p>
+        <p>Hệ thống sẽ tự động chuyển hướng bạn trong <span class="countdown">5</span> giây.</p>
+    </div>
+
+    <!-- Admin Login Overlay -->
+    <div id="admin-login-overlay">
+        <div class="admin-login-box" id="admin-auth-section">
+            <h2>Đăng Nhập Admin</h2>
+            <div class="message-box" id="adminLoginMessageBox"></div>
+            <form id="adminLoginForm">
+                <input type="text" id="adminUsername" placeholder="Tên Đăng Nhập Admin" required>
+                <input type="password" id="adminPassword" placeholder="Mật Khẩu Admin" required>
+                <button type="submit">Đăng Nhập</button>
+            </form>
+        </div>
+        <div class="admin-key-box" id="admin-key-section" style="display: none;">
+            <h2>Nhập Key Admin</h2>
+            <div class="message-box" id="adminKeyMessageBox"></div>
+            <form id="adminKeyForm">
+                <input type="password" id="adminAccessKey" placeholder="Key truy cập Admin" required>
+                <button type="submit">Truy Cập Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="sidebar" style="display: none;">
+        <h1>HUY DEV ADMIN</h1>
+        <ul>
+            <li><a href="#" class="tab-link active" data-tab="home"><i class="fas fa-home"></i> Trang Chủ</a></li>
+            <li><a href="#" class="tab-link" data-tab="manage-users"><i class="fas fa-users"></i> Quản Lý User</a></li>
+            <li><a href="#" class="tab-link" data-tab="login-history"><i class="fas fa-history"></i> Lịch Sử Đăng Nhập</a></li>
+            <li><a href="#" class="tab-link" data-tab="manage-keys"><i class="fas fa-key"></i> Quản Lý Key</a></li>
+            <li><a href="#" class="tab-link" data-tab="create-key"><i class="fas fa-plus-circle"></i> Tạo Key</a></li>
+            <li><a href="#" class="tab-link" data-tab="key-history"><i class="fas fa-file-alt"></i> Lịch Sử Nhập Key</a></li>
+            <li><a href="#" class="tab-link" data-tab="security"><i class="fas fa-shield-alt"></i> Bảo Mật</a></li>
+            <li><a href="#" class="tab-link" data-tab="user-stats"><i class="fas fa-chart-bar"></i> Thống Kê User</a></li>
+            <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content" style="display: none;">
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <div class="header">
+            <h2 id="current-section-title">Trang Chủ</h2>
+            <div class="user-info">Chào mừng, Admin!</div>
+        </div>
+
+        <!-- Home Section -->
+        <div id="home-section" class="section-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Tổng Key Đã Tạo</h3>
+                    <div class="value" id="totalKeys">0</div>
+                </div>
+                <div class="card">
+                    <h3>Tổng Key Hết Hạn</h3>
+                    <div class="value" id="expiredKeys">0</div>
+                </div>
+                <div class="card">
+                    <h3>Tổng Key No Active</h3>
+                    <div class="value" id="noActiveKeys">0</div>
+                </div>
+                <div class="card">
+                    <h3>Tổng Key Active</h3>
+                    <div class="value" id="activeKeys">0</div>
+                </div>
+                <div class="card">
+                    <h3>Tổng User</h3>
+                    <div class="value" id="totalUsers">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Users Section -->
+        <div id="manage-users-section" class="section-content">
+            <h3>User Đang Chờ Kích Hoạt</h3>
+            <div class="message-box" id="manageUsersMessageBox"></div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tên Đăng Nhập</th>
+                            <th>Gmail</th>
+                            <th>Mật Khẩu (Partial)</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingUsersTable">
+                        <!-- Pending users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Login History Section -->
+        <div id="login-history-section" class="section-content">
+            <h3>Lịch Sử Đăng Nhập Admin & User</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Thời Gian</th>
+                            <th>Thiết Bị</th>
+                            <th>IP</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminLoginHistoryTable">
+                        <!-- Admin login history will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Manage Keys Section -->
+        <div id="manage-keys-section" class="section-content">
+            <h3>Tất Cả Key Đã Tạo</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã Key</th>
+                            <th>Trạng Thái</th>
+                            <th>Thời Gian (phút)</th>
+                            <th>Thiết Bị Giới Hạn</th>
+                            <th>Kích Hoạt Bởi (User)</th>
+                            <th>IP Kích Hoạt</th>
+                            <th>Thiết Bị Kích Hoạt</th>
+                            <th>Thời Gian Kích Hoạt</th>
+                            <th>Thời Gian Hết Hạn</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allKeysTable">
+                        <!-- All keys will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Create Key Section -->
+        <div id="create-key-section" class="section-content">
+            <h3>Tạo Key Mới</h3>
+            <div class="message-box" id="createKeyMessageBox"></div>
+            <form id="create-key-form">
+                <div class="input-group">
+                    <label for="keyDurationValue"><i class="fas fa-clock"></i> Thời Gian Sử Dụng</label>
+                    <input type="number" id="keyDurationValue" placeholder="Nhập giá trị" required min="1">
+                    <select id="keyDurationUnit">
+                        <option value="seconds">Giây</option>
+                        <option value="minutes" selected>Phút</option>
+                        <option value="hours">Giờ</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="deviceLimit"><i class="fas fa-mobile-alt"></i> Số Thiết Bị Có Thể Nhập</label>
+                    <input type="number" id="deviceLimit" value="1" min="1" required>
+                </div>
+                <button type="submit">Tạo Key</button>
+            </form>
+        </div>
+
+        <!-- Key History Section -->
+        <div id="key-history-section" class="section-content">
+            <h3>Lịch Sử Nhập Key Của Người Dùng</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Thông Báo</th>
+                            <th>Mã Key</th>
+                            <th>User</th>
+                            <th>IP</th>
+                            <th>Thiết Bị</th>
+                            <th>Thời Gian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keyUsageHistoryTable">
+                        <!-- Key usage history will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div id="security-section" class="section-content">
+            <h3>Cài Đặt Bảo Mật Admin</h3>
+            <div class="message-box" id="securityMessageBox"></div>
+
+            <form id="changeAdminUsernameForm">
+                <h4><i class="fas fa-user-edit"></i> Đổi Tên Đăng Nhập Admin</h4>
+                <div class="input-group">
+                    <label for="newAdminUsername">Tên Đăng Nhập Mới</label>
+                    <input type="text" id="newAdminUsername" placeholder="Nhập tên đăng nhập mới" required>
+                </div>
+                <div class="input-group">
+                    <label for="currentAdminPasswordUsernameChange">Mật Khẩu Admin Hiện Tại</label>
+                    <input type="password" id="currentAdminPasswordUsernameChange" placeholder="Nhập mật khẩu hiện tại" required>
+                </div>
+                <button type="submit">Cập Nhật Tên Đăng Nhập</button>
+            </form>
+
+            <form id="changeAdminPasswordForm" style="margin-top: 30px;">
+                <h4><i class="fas fa-key"></i> Đổi Mật Khẩu Admin</h4>
+                <div class="input-group">
+                    <label for="currentAdminPassword">Mật Khẩu Cũ</label>
+                    <input type="password" id="currentAdminPassword" placeholder="Nhập mật khẩu cũ" required>
+                </div>
+                <div class="input-group">
+                    <label for="newAdminPassword">Mật Khẩu Mới</label>
+                    <input type="password" id="newAdminPassword" placeholder="Nhập mật khẩu mới" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirmNewAdminPassword">Xác Nhận Mật Khẩu Mới</label>
+                    <input type="password" id="confirmNewAdminPassword" placeholder="Xác nhận mật khẩu mới" required>
+                </div>
+                <button type="submit">Cập Nhật Mật Khẩu</button>
+            </form>
+
+            <form id="changeAdminKeyForm" style="margin-top: 30px;">
+                <h4><i class="fas fa-fingerprint"></i> Đổi Key Truy Cập Admin</h4>
+                <div class="input-group">
+                    <label for="currentAdminAccessKey">Key Admin Cũ</label>
+                    <input type="password" id="currentAdminAccessKey" placeholder="Nhập Key Admin cũ" required>
+                </div>
+                <div class="input-group">
+                    <label for="newAdminAccessKey">Key Admin Mới</label>
+                    <input type="password" id="newAdminAccessKey" placeholder="Nhập Key Admin mới" required>
+                </div>
+                <button type="submit">Cập Nhật Key Admin</button>
+            </form>
+        </div>
+
+        <!-- User Stats Section -->
+        <div id="user-stats-section" class="section-content">
+            <h3>Thống Kê Tất Cả User</h3>
+            <div class="message-box" id="userStatsMessageBox"></div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tên Đăng Nhập</th>
+                            <th>Gmail</th>
+                            <th>Trạng Thái</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allUsersTable">
+                        <!-- All active and locked users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+        // F12 Anti-Tamper and JavaScript Check
+        const devtoolsWarning = document.getElementById('devtools-warning');
+        const countdownSpan = devtoolsWarning.querySelector('.countdown');
+        let countdownInterval;
+
+        function showDevtoolsWarning() {
+            if (devtoolsWarning.classList.contains('active')) return;
+            devtoolsWarning.classList.add('active');
+            let count = 5;
+            countdownSpan.textContent = count;
+            countdownInterval = setInterval(() => {
+                count--;
+                countdownSpan.textContent = count;
+                if (count <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = "about:blank";
+                }
+            }, 1000);
+        }
+
+        function hideDevtoolsWarning() {
+            devtoolsWarning.classList.remove('active');
+            clearInterval(countdownInterval);
+        }
+
+        const threshold = 160;
+        const checkDevTools = () => {
+            if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                showDevtoolsWarning();
+            } else {
+                hideDevtoolsWarning();
+            }
+        };
+        window.addEventListener('resize', checkDevTools);
+        setInterval(checkDevTools, 1000);
+
+        // Firebase Configuration (UPDATED)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGzi2yJHaxkg_6wwDJQsyUl8H4vNP53OU",
+            authDomain: "webtaixiu.firebaseapp.com",
+            databaseURL: "https://webtaixiu-default-rtdb.firebaseio.com",
+            projectId: "webtaixiu",
+            storageBucket: "webtaixiu.firebasestorage.app",
+            messagingSenderId: "462342002695",
+            appId: "1:462342002695:web:c6c73c99c16cbceb0f72a2",
+            measurementId: "G-1SH100HXN0"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Admin Credentials and Key (HARDCODED FOR DEMO - USE FIREBASE SECURITY RULES IN PRODUCTION!)
+        let ADMIN_USERNAME = "Tuanchicken";
+        let ADMIN_PASSWORD = "Tuan1701"; // WARNING: HASH THIS IN REAL APP!
+        let ADMIN_ACCESS_KEY = "tuanchicken"; // This will be stored in Firebase later
+
+        // DOM Elements
+        const adminLoginOverlay = document.getElementById('admin-login-overlay');
+        const adminAuthSection = document.getElementById('admin-auth-section');
+        const adminKeySection = document.getElementById('admin-key-section');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminKeyForm = document.getElementById('adminKeyForm');
+        const adminLoginMessageBox = document.getElementById('adminLoginMessageBox');
+        const adminKeyMessageBox = document.getElementById('adminKeyMessageBox');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const currentSectionTitle = document.getElementById('current-section-title');
+        const logoutBtn = document.getElementById('logout-btn');
+        const menuToggle = document.getElementById('menuToggle');
+
+        // Dashboard Home Stats
+        const totalKeysEl = document.getElementById('totalKeys');
+        const expiredKeysEl = document.getElementById('expiredKeys');
+        const noActiveKeysEl = document.getElementById('noActiveKeys');
+        const activeKeysEl = document.getElementById('activeKeys');
+        const totalUsersEl = document.getElementById('totalUsers');
+
+        // Tables
+        const pendingUsersTable = document.getElementById('pendingUsersTable');
+        const adminLoginHistoryTable = document.getElementById('adminLoginHistoryTable');
+        const allKeysTable = document.getElementById('allKeysTable');
+        const keyUsageHistoryTable = document.getElementById('keyUsageHistoryTable');
+        const allUsersTable = document.getElementById('allUsersTable');
+
+        // Forms
+        const createKeyForm = document.getElementById('create-key-form');
+        const createKeyMessageBox = document.getElementById('createKeyMessageBox');
+        const securityMessageBox = document.getElementById('securityMessageBox');
+        const manageUsersMessageBox = document.getElementById('manageUsersMessageBox');
+        const userStatsMessageBox = document.getElementById('userStatsMessageBox');
+        const changeAdminUsernameForm = document.getElementById('changeAdminUsernameForm');
+        const changeAdminPasswordForm = document.getElementById('changeAdminPasswordForm');
+        const changeAdminKeyForm = document.getElementById('changeAdminKeyForm');
+
+        // Custom Message Box Function
+        function showMessageBox(element, message, type = 'error') {
+            element.innerHTML = `${message}<span class="close-btn">&times;</span>`;
+            element.className = 'message-box show'; // Reset classes
+            if (type === 'success') {
+                element.classList.add('success');
+            } else if (type === 'warning') {
+                element.classList.add('warning');
+            } else if (type === 'info') {
+                element.classList.add('info');
+            }
+            else {
+                element.classList.add('error');
+            }
+            element.querySelector('.close-btn').onclick = () => {
+                element.classList.remove('show');
+            };
+            setTimeout(() => {
+                element.classList.remove('show');
+            }, 8000); // Auto-hide after 8 seconds
+        }
+
+        // Admin Authentication Flow
+        async function checkAdminSettingsInFirebase() {
+            try {
+                const adminSettingsRef = db.ref('admin_settings');
+                const snapshot = await adminSettingsRef.once('value');
+                const settings = snapshot.val();
+
+                if (settings) {
+                    ADMIN_USERNAME = settings.username || ADMIN_USERNAME;
+                    ADMIN_PASSWORD = settings.password || ADMIN_PASSWORD; // Still plaintext for demo
+                    ADMIN_ACCESS_KEY = settings.access_key || ADMIN_ACCESS_KEY;
+                } else {
+                    // If no settings exist, create initial ones
+                    await adminSettingsRef.set({
+                        username: ADMIN_USERNAME,
+                        password: ADMIN_PASSWORD,
+                        access_key: ADMIN_ACCESS_KEY
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching/setting admin settings:", error);
+            }
+        }
+
+        async function initAdminAuth() {
+            await checkAdminSettingsInFirebase(); // Load admin settings first
+            const loggedInAsAdmin = localStorage.getItem('adminLoggedIn');
+            const adminKeyEntered = localStorage.getItem('adminKeyEntered');
+
+            if (loggedInAsAdmin === 'true' && adminKeyEntered === 'true') {
+                showDashboard();
+            } else {
+                adminLoginOverlay.style.display = 'flex';
+                adminAuthSection.style.display = 'block';
+                adminKeySection.style.display = 'none';
+            }
+        }
+
+        adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showMessageBox(adminLoginMessageBox, 'Đăng nhập thành công! Vui lòng nhập Key Admin.', 'success');
+                adminAuthSection.style.display = 'none';
+                adminKeySection.style.display = 'block';
+
+                // Log admin login attempt
+                let ipAddress = 'N/A';
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.warn('Could not fetch IP for admin login history:', ipError);
+                }
+                db.ref('admin_login_history').push({
+                    timestamp: new Date().toISOString(),
+                    action: 'Admin Login Attempt (Success)',
+                    ipAddress: ipAddress,
+                    device: navigator.userAgent
+                });
+
+            } else {
+                showMessageBox(adminLoginMessageBox, 'Tên đăng nhập hoặc mật khẩu Admin không đúng.');
+                 // Log failed attempt
+                let ipAddress = 'N/A';
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) { /* ignore */ }
+                db.ref('admin_login_history').push({
+                    timestamp: new Date().toISOString(),
+                    action: `Admin Login Attempt (Failed) - User: ${username}`,
+                    ipAddress: ipAddress,
+                    device: navigator.userAgent
+                });
+            }
+        });
+
+        adminKeyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const accessKey = document.getElementById('adminAccessKey').value.trim();
+
+            await checkAdminSettingsInFirebase(); // Ensure latest key is loaded
+
+            if (accessKey === ADMIN_ACCESS_KEY) {
+                localStorage.setItem('adminKeyEntered', 'true');
+                showMessageBox(adminKeyMessageBox, 'Key Admin hợp lệ. Đang chuyển hướng...', 'success');
+                adminLoginOverlay.style.display = 'none';
+                showDashboard();
+            } else {
+                showMessageBox(adminKeyMessageBox, 'Key truy cập Admin không đúng.');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminKeyEntered');
+            window.location.reload(); // Reload to show login screen
+        });
+
+        function showDashboard() {
+            adminLoginOverlay.style.display = 'none';
+            sidebar.style.display = 'flex';
+            mainContent.style.display = 'block';
+            loadDashboardData(); // Load initial data
+        }
+
+        // Mobile menu toggle
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+
+        // Tab Switching
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+
+                link.classList.add('active');
+                const targetTab = link.dataset.tab;
+                document.getElementById(`${targetTab}-section`).classList.add('active');
+                currentSectionTitle.textContent = link.textContent.trim();
+
+                // Hide sidebar on mobile after clicking a link
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                }
+
+                // Clear messages when switching tabs
+                manageUsersMessageBox.classList.remove('show');
+                createKeyMessageBox.classList.remove('show');
+                securityMessageBox.classList.remove('show');
+                userStatsMessageBox.classList.remove('show');
+
+                // Load data for the specific tab
+                switch (targetTab) {
+                    case 'home':
+                        loadDashboardData();
+                        break;
+                    case 'manage-users':
+                        loadPendingUsers();
+                        break;
+                    case 'login-history':
+                        loadAdminLoginHistory();
+                        break;
+                    case 'manage-keys':
+                        loadAllKeys();
+                        break;
+                    case 'key-history':
+                        loadKeyUsageHistory();
+                        break;
+                    case 'user-stats':
+                        loadAllUsers();
+                        break;
+                }
+            });
+        });
+
+        // --- Dashboard Data Loading Functions ---
+
+        async function loadDashboardData() {
+            try {
+                const keysSnapshot = await db.ref('keys').once('value');
+                let total = 0;
+                let expired = 0;
+                let noActive = 0;
+                let active = 0;
+
+                keysSnapshot.forEach(childSnapshot => {
+                    total++;
+                    const keyData = childSnapshot.val();
+                    if (keyData.status === 'expired') {
+                        expired++;
+                    } else if (keyData.status === 'no_active') {
+                        noActive++;
+                    } else if (keyData.status === 'active') {
+                        active++;
+                    }
+                });
+
+                totalKeysEl.textContent = total;
+                expiredKeysEl.textContent = expired;
+                noActiveKeysEl.textContent = noActive;
+                activeKeysEl.textContent = active;
+
+                const usersSnapshot = await db.ref('active_users').once('value');
+                const pendingUsersSnapshot = await db.ref('pending_users').once('value');
+                const lockedUsersSnapshot = await db.ref('locked_users').once('value');
+                totalUsersEl.textContent = usersSnapshot.numChildren() + pendingUsersSnapshot.numChildren() + lockedUsersSnapshot.numChildren();
+
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                showMessageBox(document.getElementById('home-section').querySelector('.message-box') || document.body, `Lỗi tải dữ liệu: ${error.message}`);
+            }
+        }
+
+        async function loadPendingUsers() {
+            pendingUsersTable.innerHTML = '';
+            try {
+                const snapshot = await db.ref('pending_users').once('value');
+                if (!snapshot.exists()) {
+                    pendingUsersTable.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">Không có user nào đang chờ kích hoạt.</td></tr>';
+                    return;
+                }
+                const pendingUsers = [];
+                snapshot.forEach(childSnapshot => {
+                    pendingUsers.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                pendingUsers.sort((a, b) => new Date(a.registrationDate) - new Date(b.registrationDate)); // Sort by registration date
+
+                pendingUsers.forEach(user => {
+                    const userId = user.id;
+                    const row = `
+                        <tr>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${user.password.substring(0, 8)}...</td> <!-- Show partial password for security, remind to hash! -->
+                            <td class="action-buttons">
+                                <button class="active-btn" onclick="activateUser('${userId}')">Active</button>
+                                <button class="delete-btn" onclick="deletePendingUser('${userId}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                    pendingUsersTable.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading pending users:", error);
+                showMessageBox(manageUsersMessageBox, `Lỗi tải user chờ kích hoạt: ${error.message}`);
+            }
+        }
+
+        async function activateUser(userId) {
+            if (!confirm('Bạn có chắc chắn muốn kích hoạt tài khoản này?')) return;
+            try {
+                const userRef = db.ref('pending_users').child(userId);
+                const snapshot = await userRef.once('value');
+                const user = snapshot.val();
+
+                if (user) {
+                    await db.ref('active_users').child(userId).set({
+                        username: user.username,
+                        email: user.email,
+                        password: user.password,
+                        status: 'active',
+                        registrationDate: user.registrationDate, // Keep original registration date
+                        activationDate: new Date().toISOString()
+                    });
+                    await userRef.remove(); // Remove from pending
+
+                    showMessageBox(manageUsersMessageBox, `Đã kích hoạt tài khoản ${user.username}.`, 'success');
+                    loadPendingUsers(); // Reload the list
+                    loadDashboardData(); // Update stats
+                }
+            } catch (error) {
+                console.error("Error activating user:", error);
+                showMessageBox(manageUsersMessageBox, `Lỗi khi kích hoạt user: ${error.message}`);
+            }
+        }
+
+        async function deletePendingUser(userId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa user này khỏi hệ thống?')) return;
+            try {
+                await db.ref('pending_users').child(userId).remove();
+                showMessageBox(manageUsersMessageBox, 'Đã xóa user.', 'success');
+                loadPendingUsers();
+                loadDashboardData();
+            } catch (error) {
+                console.error("Error deleting pending user:", error);
+                showMessageBox(manageUsersMessageBox, `Lỗi khi xóa user: ${error.message}`);
+            }
+        }
+
+        async function loadAdminLoginHistory() {
+            adminLoginHistoryTable.innerHTML = '';
+            try {
+                const snapshot = await db.ref('admin_login_history').orderByChild('timestamp').once('value');
+                if (!snapshot.exists()) {
+                    adminLoginHistoryTable.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">Không có lịch sử đăng nhập nào.</td></tr>';
+                    return;
+                }
+                const logs = [];
+                snapshot.forEach(childSnapshot => {
+                    logs.push(childSnapshot.val());
+                });
+                // Sort descending by timestamp
+                logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                logs.forEach(log => {
+                    const row = `
+                        <tr>
+                            <td>${new Date(log.timestamp).toLocaleString()}</td>
+                            <td>${log.device}</td>
+                            <td>${log.ipAddress}</td>
+                            <td>${log.action}</td>
+                        </tr>
+                    `;
+                    adminLoginHistoryTable.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading admin login history:", error);
+                showMessageBox(document.getElementById('login-history-section').querySelector('.message-box') || document.body, `Lỗi tải lịch sử đăng nhập: ${error.message}`);
+            }
+        }
+
+        async function loadAllKeys() {
+            allKeysTable.innerHTML = '';
+            try {
+                const snapshot = await db.ref('keys').once('value');
+                if (!snapshot.exists()) {
+                    allKeysTable.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px; color: #666;">Không có key nào được tạo.</td></tr>';
+                    return;
+                }
+                const keys = [];
+                snapshot.forEach(childSnapshot => {
+                    keys.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                // Sort by creation time descending
+                keys.sort((a, b) => new Date(b.creationTime) - new Date(a.creationTime));
+
+                keys.forEach(keyData => {
+                    const statusClass = keyData.status === 'expired' ? 'expired' : (keyData.status === 'active' ? 'active' : (keyData.status === 'no_active' ? 'no_active' : ''));
+                    const activationTime = keyData.activationTime ? new Date(keyData.activationTime).toLocaleString() : 'N/A';
+                    const expiryTime = keyData.expiryTime ? new Date(keyData.expiryTime).toLocaleString() : 'N/A';
+
+                    // Display active devices if available
+                    let activeDevicesInfo = 'N/A';
+                    let activeIpInfo = 'N/A';
+                    if (keyData.activeDevices && Object.keys(keyData.activeDevices).length > 0) {
+                        const deviceEntries = Object.values(keyData.activeDevices).map(dev => `IP: ${dev.ip}, Device: ${dev.device.substring(0, 30)}...`);
+                        activeDevicesInfo = deviceEntries.join('<br>');
+                        activeIpInfo = Object.values(keyData.activeDevices).map(dev => dev.ip).join(', ');
+                    }
+
+
+                    const row = `
+                        <tr>
+                            <td>${keyData.id}</td>
+                            <td><span class="status-badge ${statusClass}">${keyData.status}</span></td>
+                            <td>${keyData.duration / 60}</td>
+                            <td>${keyData.deviceLimit}</td>
+                            <td>${keyData.activeUsername || 'N/A'}</td>
+                            <td>${activeIpInfo}</td>
+                            <td>${activeDevicesInfo}</td>
+                            <td>${activationTime}</td>
+                            <td>${expiryTime}</td>
+                        </tr>
+                    `;
+                    allKeysTable.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading all keys:", error);
+                showMessageBox(document.getElementById('manage-keys-section').querySelector('.message-box') || document.body, `Lỗi tải tất cả key: ${error.message}`);
+            }
+        }
+
+        createKeyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const durationValue = parseInt(document.getElementById('keyDurationValue').value);
+            const durationUnit = document.getElementById('keyDurationUnit').value;
+            const deviceLimit = parseInt(document.getElementById('deviceLimit').value);
+
+            if (isNaN(durationValue) || durationValue <= 0 || isNaN(deviceLimit) || deviceLimit <= 0) {
+                showMessageBox(createKeyMessageBox, 'Vui lòng nhập giá trị hợp lệ cho thời gian và số thiết bị.');
+                return;
+            }
+
+            let durationSeconds;
+            if (durationUnit === 'seconds') {
+                durationSeconds = durationValue;
+            } else if (durationUnit === 'minutes') {
+                durationSeconds = durationValue * 60;
+            } else if (durationUnit === 'hours') {
+                durationSeconds = durationValue * 60 * 60;
+            }
+
+            const newKey = Math.random().toString(36).substring(2, 12).toUpperCase();
+
+            try {
+                await db.ref('keys').child(newKey).set({
+                    duration: durationSeconds,
+                    deviceLimit: deviceLimit,
+                    status: 'no_active',
+                    creationTime: new Date().toISOString(),
+                    activeUserUid: null,
+                    activeUsername: null,
+                    activeDevices: null, // Store multiple active devices if needed
+                    activationTime: null,
+                    expiryTime: null
+                });
+                showMessageBox(createKeyMessageBox, `Key mới đã được tạo: <strong style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-color')}">${newKey}</strong>`, 'success');
+                createKeyForm.reset();
+                loadDashboardData();
+                loadAllKeys();
+            } catch (error) {
+                console.error("Error creating key:", error);
+                showMessageBox(createKeyMessageBox, `Lỗi khi tạo key: ${error.message}`);
+            }
+        });
+
+        async function loadKeyUsageHistory() {
+            keyUsageHistoryTable.innerHTML = '';
+            try {
+                const snapshot = await db.ref('key_usage_history').orderByChild('timestamp').once('value');
+                if (!snapshot.exists()) {
+                    keyUsageHistoryTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #666;">Không có lịch sử nhập key nào.</td></tr>';
+                    return;
+                }
+                const logs = [];
+                snapshot.forEach(childSnapshot => {
+                    logs.push(childSnapshot.val());
+                });
+                // Sort descending by timestamp
+                logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                logs.forEach(log => {
+                    const row = `
+                        <tr>
+                            <td>${log.message}</td>
+                            <td>${log.key || 'N/A'}</td>
+                            <td>${log.username || 'N/A'}</td>
+                            <td>${log.ip || 'N/A'}</td>
+                            <td>${log.device || 'N/A'}</td>
+                            <td>${new Date(log.timestamp).toLocaleString()}</td>
+                        </tr>
+                    `;
+                    keyUsageHistoryTable.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading key usage history:", error);
+                showMessageBox(document.getElementById('key-history-section').querySelector('.message-box') || document.body, `Lỗi tải lịch sử nhập key: ${error.message}`);
+            }
+        }
+
+        // Security Forms
+        changeAdminUsernameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newUsername = document.getElementById('newAdminUsername').value.trim();
+            const currentPassword = document.getElementById('currentAdminPasswordUsernameChange').value;
+
+            if (currentPassword !== ADMIN_PASSWORD) {
+                showMessageBox(securityMessageBox, 'Mật khẩu Admin hiện tại không đúng.');
+                return;
+            }
+
+            try {
+                await db.ref('admin_settings/username').set(newUsername);
+                ADMIN_USERNAME = newUsername;
+                showMessageBox(securityMessageBox, 'Tên đăng nhập Admin đã được cập nhật.', 'success');
+                changeAdminUsernameForm.reset();
+                document.querySelector('.header .user-info').textContent = `Chào mừng, ${ADMIN_USERNAME}!`;
+            } catch (error) {
+                console.error("Error changing admin username:", error);
+                showMessageBox(securityMessageBox, `Lỗi: ${error.message}`);
+            }
+        });
+
+        changeAdminPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentAdminPassword').value;
+            const newPassword = document.getElementById('newAdminPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewAdminPassword').value;
+
+            if (currentPassword !== ADMIN_PASSWORD) {
+                showMessageBox(securityMessageBox, 'Mật khẩu cũ không đúng.');
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                showMessageBox(securityMessageBox, 'Mật khẩu mới và xác nhận mật khẩu không khớp.');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showMessageBox(securityMessageBox, 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+                return;
+            }
+
+            try {
+                await db.ref('admin_settings/password').set(newPassword); // WARNING: In production, hash this!
+                ADMIN_PASSWORD = newPassword;
+                showMessageBox(securityMessageBox, 'Mật khẩu Admin đã được cập nhật.', 'success');
+                changeAdminPasswordForm.reset();
+            } catch (error) {
+                console.error("Error changing admin password:", error);
+                showMessageBox(securityMessageBox, `Lỗi: ${error.message}`);
+            }
+        });
+
+        changeAdminKeyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentKey = document.getElementById('currentAdminAccessKey').value.trim();
+            const newKey = document.getElementById('newAdminAccessKey').value.trim();
+
+            if (currentKey !== ADMIN_ACCESS_KEY) {
+                showMessageBox(securityMessageBox, 'Key Admin cũ không đúng.');
+                return;
+            }
+            if (!newKey) {
+                showMessageBox(securityMessageBox, 'Key mới không được để trống.');
+                return;
+            }
+
+            try {
+                await db.ref('admin_settings/access_key').set(newKey);
+                ADMIN_ACCESS_KEY = newKey;
+                showMessageBox(securityMessageBox, 'Key truy cập Admin đã được cập nhật.', 'success');
+                changeAdminKeyForm.reset();
+            } catch (error) {
+                console.error("Error changing admin access key:", error);
+                showMessageBox(securityMessageBox, `Lỗi: ${error.message}`);
+            }
+        });
+
+
+        async function loadAllUsers() {
+            allUsersTable.innerHTML = '';
+            try {
+                const activeUsersSnapshot = await db.ref('active_users').once('value');
+                const lockedUsersSnapshot = await db.ref('locked_users').once('value');
+
+                const allUsers = [];
+                activeUsersSnapshot.forEach(childSnapshot => {
+                    allUsers.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                lockedUsersSnapshot.forEach(childSnapshot => {
+                    allUsers.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+
+                // Sort by registration date or username
+                allUsers.sort((a, b) => (a.username || '').localeCompare(b.username || ''));
+
+                if (allUsers.length === 0) {
+                    allUsersTable.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #666;">Không có user nào trong hệ thống.</td></tr>';
+                    return;
+                }
+
+                allUsers.forEach(user => {
+                    let statusBadge = '';
+                    let actionButtons = '';
+
+                    if (user.status === 'active') {
+                        statusBadge = `<span class="status-badge active">Đang hoạt động</span>`;
+                        actionButtons = `
+                            <button class="lock-btn" onclick="lockUser('${user.id}', '${user.username}')">Khóa</button>
+                            <button class="delete-btn" onclick="deleteUser('${user.id}', 'active_users')">Xóa</button>
+                        `;
+                    } else if (user.status === 'locked') {
+                        statusBadge = `<span class="status-badge locked">Đã khóa</span>`;
+                        actionButtons = `
+                            <button class="unlock-btn" onclick="unlockUser('${user.id}', '${user.username}')">Mở khóa</button>
+                            <button class="delete-btn" onclick="deleteUser('${user.id}', 'locked_users')">Xóa</button>
+                        `;
+                    }
+
+                    const row = `
+                        <tr>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${statusBadge}</td>
+                            <td class="action-buttons">${actionButtons}</td>
+                        </tr>
+                    `;
+                    allUsersTable.innerHTML += row;
+                });
+
+            } catch (error) {
+                console.error("Error loading all users:", error);
+                showMessageBox(userStatsMessageBox, `Lỗi tải tất cả user: ${error.message}`);
+            }
+        }
+
+        async function lockUser(userId, username) {
+            if (!confirm(`Bạn có chắc chắn muốn khóa tài khoản ${username} này?`)) return;
+            try {
+                const userRef = db.ref('active_users').child(userId);
+                const snapshot = await userRef.once('value');
+                const user = snapshot.val();
+
+                if (user) {
+                    await db.ref('locked_users').child(userId).set({
+                        username: user.username,
+                        email: user.email,
+                        password: user.password,
+                        status: 'locked',
+                        registrationDate: user.registrationDate,
+                        activationDate: user.activationDate,
+                        lockDate: new Date().toISOString()
+                    });
+                    await userRef.remove();
+
+                    showMessageBox(userStatsMessageBox, `Đã khóa tài khoản ${username}.`, 'success');
+                    loadAllUsers();
+                    loadDashboardData();
+                }
+            } catch (error) {
+                console.error("Error locking user:", error);
+                showMessageBox(userStatsMessageBox, `Lỗi khi khóa user: ${error.message}`);
+            }
+        }
+
+        async function unlockUser(userId, username) {
+            if (!confirm(`Bạn có chắc chắn muốn mở khóa tài khoản ${username} này?`)) return;
+            try {
+                const userRef = db.ref('locked_users').child(userId);
+                const snapshot = await userRef.once('value');
+                const user = snapshot.val();
+
+                if (user) {
+                    await db.ref('active_users').child(userId).set({
+                        username: user.username,
+                        email: user.email,
+                        password: user.password,
+                        status: 'active',
+                        registrationDate: user.registrationDate,
+                        activationDate: user.activationDate,
+                        unlockDate: new Date().toISOString()
+                    });
+                    await userRef.remove();
+
+                    showMessageBox(userStatsMessageBox, `Đã mở khóa tài khoản ${username}.`, 'success');
+                    loadAllUsers();
+                    loadDashboardData();
+                }
+            } catch (error) {
+                console.error("Error unlocking user:", error);
+                showMessageBox(userStatsMessageBox, `Lỗi khi mở khóa user: ${error.message}`);
+            }
+        }
+
+        async function deleteUser(userId, userCollection) {
+            if (!confirm('Bạn có chắc chắn muốn xóa user này khỏi hệ thống vĩnh viễn?')) return;
+            try {
+                await db.ref(userCollection).child(userId).remove();
+                showMessageBox(userStatsMessageBox, 'Đã xóa user vĩnh viễn.', 'success');
+                loadAllUsers();
+                loadDashboardData();
+            } catch (error) {
+                    console.error("Error deleting user:", error);
+                    showMessageBox(userStatsMessageBox, `Lỗi khi xóa user: ${error.message}`);
+            }
+        }
+
+        // Initialize Admin Auth on page load
+        document.addEventListener('DOMContentLoaded', initAdminAuth);
+
+        // Periodically refresh data (e.g., every minute)
+        setInterval(() => {
+            if (localStorage.getItem('adminLoggedIn') === 'true' && localStorage.getItem('adminKeyEntered') === 'true') {
+                loadDashboardData();
+                const activeTab = document.querySelector('.tab-link.active');
+                if (activeTab) {
+                    const targetTab = activeTab.dataset.tab;
+                    switch (targetTab) {
+                        case 'manage-users':
+                            loadPendingUsers();
+                            break;
+                        case 'login-history':
+                            loadAdminLoginHistory();
+                            break;
+                        case 'manage-keys':
+                            loadAllKeys();
+                            break;
+                        case 'key-history':
+                            loadKeyUsageHistory();
+                            break;
+                        case 'user-stats':
+                            loadAllUsers();
+                            break;
+                    }
+                }
+            }
+        }, 60000); // Every 60 seconds
+    </script>
+</body>
+</html>
